@@ -35,7 +35,8 @@ function FilterBar({ filters, onRemoveFilter, suggestions, onAddFilter }: Filter
   const userSuggestions = suggestions?.common_user_ids?.buckets || [];
   const hasSuggestions = levelSuggestions.length > 0 || userSuggestions.length > 0;
 
-  if (filters.length === 0 && !hasSuggestions) {
+  // Always show the FilterBar if onAddFilter is available, even with no filters/suggestions
+  if (filters.length === 0 && !hasSuggestions && !onAddFilter) {
     return null;
   }
 
