@@ -1,6 +1,5 @@
 import { Container, Group, Text, Anchor, useMantineColorScheme } from '@mantine/core';
 import { IconHeart } from '@tabler/icons-react';
-import Logo from './Logo';
 
 function Footer() {
   const { colorScheme } = useMantineColorScheme();
@@ -18,7 +17,6 @@ function Footer() {
       <Container size="xl">
         <Group justify="space-between" align="center">
           <svg width={32} height={32} viewBox="0 0 32 32" fill="none">
-            {/* Stylized "L" shape representing logs/layers */}
             <path
               d="M8 6 L8 20 L20 20 L20 18 L10 18 L10 6 Z"
               fill="currentColor"
@@ -28,7 +26,6 @@ function Footer() {
               d="M12 10 L12 24 L24 24 L24 22 L14 22 L14 10 Z"
               fill="currentColor"
             />
-            {/* Small dots representing data points */}
             <circle cx="18" cy="12" r="1.5" fill="currentColor" opacity="0.6" />
             <circle cx="22" cy="16" r="1.5" fill="currentColor" opacity="0.6" />
             <circle cx="26" cy="20" r="1.5" fill="currentColor" opacity="0.6" />
