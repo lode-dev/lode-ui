@@ -1,5 +1,5 @@
 import { Paper, Group, Text, Badge, Code, Accordion, ActionIcon } from '@mantine/core';
-import { IconFilter } from '@tabler/icons-react';
+import { IconFilter, IconChevronDown } from '@tabler/icons-react';
 
 interface LogEntryCardProps {
   log: {
@@ -44,14 +44,17 @@ function LogEntryCard({ log, onMetadataClick }: LogEntryCardProps) {
         <Accordion variant="transparent" mt="xs">
           <Accordion.Item value="metadata">
             <Accordion.Control>
-              <Text size="sm">Metadata</Text>
+              <Group gap="xs">
+                <Text size="sm">Metadata</Text>
+                <IconChevronDown size="0.8rem" />
+              </Group>
             </Accordion.Control>
             <Accordion.Panel>
               <Code block>
                 {Object.entries(log.metadata).map(([key, value]) => (
                   <Group key={key} wrap="nowrap" gap="xs">
                     {CLICKABLE_METADATA_KEYS.includes(key) ? (
-                      <ActionIcon size="xs" variant="subtle" onClick={() => onMetadataClick(key, value)} title={`Filter by ${key}: ${value}`}>
+                      <ActionIcon size="xs" variant="subtle" onClick={() => onMetadataClick(`metadata.${key}`, value)} title={`Filter by ${key}: ${value}`}>
                         <IconFilter size="0.8rem" />
                       </ActionIcon>
                     ) : (
