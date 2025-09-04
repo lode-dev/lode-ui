@@ -1,5 +1,5 @@
-import { Paper, Group, Text, Badge, Code, Accordion, ActionIcon, useMantineColorScheme } from '@mantine/core';
-import { IconFilter, IconChevronDown } from '@tabler/icons-react';
+import { Paper, Group, Text, Badge, Code, Accordion, ActionIcon, useMantineColorScheme, Checkbox, Button } from '@mantine/core';
+import { IconFilter, IconChevronDown, IconBrain } from '@tabler/icons-react';
 
 interface LogEntryCardProps {
   log: {
@@ -9,11 +9,14 @@ interface LogEntryCardProps {
     metadata: Record<string, any>;
   };
   onMetadataClick: (key: string, value: any) => void;
+  onAnalyzeLog: (log: LogEntryCardProps['log']) => void;
+  isSelected: boolean;
+  onToggleSelection: () => void;
 }
 
 const CLICKABLE_METADATA_KEYS = ['user_id', 'trace_id', 'source_ip'];
 
-function LogEntryCard({ log, onMetadataClick }: LogEntryCardProps) {
+function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggleSelection }: LogEntryCardProps) {
   const { colorScheme } = useMantineColorScheme();
 
   const getLogLevelColor = (level: string) => {
@@ -34,8 +37,12 @@ function LogEntryCard({ log, onMetadataClick }: LogEntryCardProps) {
       radius="xl" 
       shadow="xs"
       style={{
-        backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
-        border: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
+        backgroundColor: isSelected 
+          ? (colorScheme === 'dark' ? '#2b2c30' : '#f0f8ff')
+          : (colorScheme === 'dark' ? '#25262b' : 'white'),
+        border: isSelected
+          ? (colorScheme === 'dark' ? '2px solid #339af0' : '2px solid #339af0')
+          : (colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef'),
         transition: 'all 0.2s ease',
         '&:hover': {
           boxShadow: colorScheme === 'dark' 
@@ -47,6 +54,12 @@ function LogEntryCard({ log, onMetadataClick }: LogEntryCardProps) {
     >
       <Group justify="space-between" mb="sm">
         <Group align="center" gap="md">
+          <Checkbox
+            checked={isSelected}
+            onChange={onToggleSelection}
+            size="sm"
+            color="blue"
+          />
           <Badge 
             color={getLogLevelColor(log.level)} 
             variant="light" 
@@ -60,9 +73,21 @@ function LogEntryCard({ log, onMetadataClick }: LogEntryCardProps) {
             {log.message}
           </Text>
         </Group>
-        <Text c="dimmed" size="sm" fw={500}>
-          {new Date(log.timestamp).toLocaleString()}
-        </Text>
+        <Group gap="xs">
+          <Button
+            size="xs"
+            variant="light"
+            color="blue"
+            leftSection={<IconBrain size="0.8rem" />}
+            onClick={() => onAnalyzeLog(log)}
+            radius="md"
+          >
+            Analyze this Log
+          </Button>
+          <Text c="dimmed" size="sm" fw={500}>
+            {new Date(log.timestamp).toLocaleString()}
+          </Text>
+        </Group>
       </Group>
 
       {Object.keys(log.metadata).length > 0 && (

@@ -3,14 +3,15 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   AppShell, TextInput, ScrollArea, Group, Switch, Stack,
-  Pagination, Select, Container, ActionIcon, useMantineColorScheme
+  Pagination, Select, Container, ActionIcon, useMantineColorScheme, Affix
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconSearch, IconSun, IconMoon } from '@tabler/icons-react';
+import { IconSearch, IconSun, IconMoon, IconMessageCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import LogEntryCard from './LogEntryCard';
 import FilterBar from './FilterBar';
 import Logo from './components/Logo';
 import Footer from './components/Footer';
+import ChatPanel from './components/ChatPanel';
 
 interface Log {
   level: string;
@@ -48,6 +49,9 @@ function App() {
   const [pageSize, setPageSize] = useState<string>('50');
 
   const [debouncedSearchTerm] = useDebouncedValue(searchTerm, 300);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [contextLogs, setContextLogs] = useState<Log[]>([]);
+  const [selectedLogIndices, setSelectedLogIndices] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (isLive) return;
@@ -114,6 +118,34 @@ function App() {
       setPageSize(value);
       setPage(1);
     }
+  };
+
+  const handleAnalyzeLog = (log: Log) => {
+    setContextLogs([log]);
+    setIsChatOpen(true);
+  };
+
+  const handleToggleLogSelection = (index: number) => {
+    setSelectedLogIndices(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
+
+  const handleAddSelectedToContext = () => {
+    const selectedLogs = logs.filter((_, index) => selectedLogIndices.has(index));
+    setContextLogs(prev => [...prev, ...selectedLogs]);
+    setSelectedLogIndices(new Set());
+    setIsChatOpen(true);
+  };
+
+  const handleClearContext = () => {
+    setContextLogs([]);
   };
 
   return (
@@ -198,7 +230,14 @@ function App() {
             <ScrollArea flex={1} type="scroll">
               <Stack gap="md">
                 {logs.map((log, index) => (
-                  <LogEntryCard key={index} log={log} onMetadataClick={handleAddFilter} />
+                  <LogEntryCard 
+                    key={index} 
+                    log={log} 
+                    onMetadataClick={handleAddFilter}
+                    onAnalyzeLog={handleAnalyzeLog}
+                    isSelected={selectedLogIndices.has(index)}
+                    onToggleSelection={() => handleToggleLogSelection(index)}
+                  />
                 ))}
               </Stack>
             </ScrollArea>
@@ -246,6 +285,66 @@ function App() {
       <AppShell.Footer>
         <Footer />
       </AppShell.Footer>
+
+      {/* Chat Toggle Button */}
+      <Affix position={{ bottom: 20, right: 20 }}>
+        <ActionIcon
+          size="xl"
+          radius="xl"
+          variant="filled"
+          color="blue"
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          style={{
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            transition: 'transform 0.2s ease',
+            '&:hover': {
+              transform: 'scale(1.05)'
+            }
+          }}
+        >
+          <IconMessageCircle size="1.5rem" />
+        </ActionIcon>
+      </Affix>
+
+      {/* Floating Action Bar for Selected Logs */}
+      {selectedLogIndices.size > 0 && (
+        <Affix position={{ bottom: 80, right: 20 }}>
+          <Group gap="xs">
+            <ActionIcon
+              size="lg"
+              radius="xl"
+              variant="filled"
+              color="red"
+              onClick={() => setSelectedLogIndices(new Set())}
+              style={{
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              }}
+            >
+              <IconTrash size="1.2rem" />
+            </ActionIcon>
+            <ActionIcon
+              size="lg"
+              radius="xl"
+              variant="filled"
+              color="green"
+              onClick={handleAddSelectedToContext}
+              style={{
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              }}
+            >
+              <IconPlus size="1.2rem" />
+            </ActionIcon>
+          </Group>
+        </Affix>
+      )}
+
+      {/* Chat Panel */}
+      <ChatPanel 
+        isOpen={isChatOpen} 
+        contextLogs={contextLogs}
+        activeFilters={filters}
+        onClearContext={handleClearContext}
+      />
     </AppShell>
   );
 }
