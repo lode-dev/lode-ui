@@ -3,7 +3,7 @@ import {
   Paper, TextInput, ActionIcon, ScrollArea, Text, Group, Stack,
   useMantineColorScheme, Box, Loader, Badge, Button
 } from '@mantine/core';
-import { IconSend, IconRobot, IconUser, IconTrash } from '@tabler/icons-react';
+import { IconSend, IconRobot, IconUser, IconTrash, IconPlayerStop } from '@tabler/icons-react';
 
 interface Message {
   id: string;
@@ -31,12 +31,12 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
   const streamTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    if (isOpen && !wsRef.current) {
+    if (isOpen && (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED)) {
       connectWebSocket();
     }
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.close(1000, 'Component unmounting');
         wsRef.current = null;
       }
       if (streamTimeoutRef.current) {
@@ -54,6 +54,17 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
 
   const connectWebSocket = () => {
     try {
+      // Don't create a new connection if one already exists and is connecting/open
+      if (wsRef.current && (wsRef.current.readyState === WebSocket.CONNECTING || wsRef.current.readyState === WebSocket.OPEN)) {
+        return;
+      }
+
+      // Close existing connection if any
+      if (wsRef.current) {
+        wsRef.current.close(1000, 'Creating new connection');
+      }
+
+      console.log('Creating new WebSocket connection...');
       const ws = new WebSocket('ws://localhost:8000/v1/ws/chat');
       
       ws.onopen = () => {
@@ -64,12 +75,14 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
       ws.onmessage = (event) => {
         const token = event.data;
         
-        // Check if this is an end-of-stream signal (empty token or specific marker)
-        if (token === '' || token === '\n\n' || token.trim() === '') {
+        // Check if this is an explicit end-of-stream signal
+        if (token === '[STREAM_END]' || token.includes('[Stream interrupted by user]')) {
           setIsStreaming(false);
+          console.log('Stream ended:', token);
           return;
         }
         
+        // Add token to response (even if it's whitespace - it might be meaningful)
         currentResponseRef.current += token;
         
         // Update the last message (assistant's response) with the new token
@@ -87,14 +100,26 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
         // Reset the timeout since we're still receiving tokens
         clearTimeout(streamTimeoutRef.current);
         streamTimeoutRef.current = setTimeout(() => {
+          console.log('Stream timeout - no tokens received for 5 seconds');
           setIsStreaming(false);
-        }, 3000); // 3 seconds of no tokens = end of stream
+        }, 5000); // 5 seconds of no tokens = end of stream
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         setIsConnected(false);
         setIsStreaming(false);
-        console.log('Chat WebSocket disconnected');
+        console.log('Chat WebSocket disconnected:', event.code, event.reason);
+        
+        // Only auto-reconnect for unexpected closures and if the panel is still open
+        if (event.code !== 1000 && event.code !== 1001 && isOpen && wsRef.current === ws) {
+          console.log('Scheduling reconnection in 3 seconds...');
+          setTimeout(() => {
+            if (isOpen && (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED)) {
+              console.log('Attempting to reconnect...');
+              connectWebSocket();
+            }
+          }, 3000);
+        }
       };
 
       ws.onerror = (error) => {
@@ -154,9 +179,45 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
     setInputValue('');
 
     // Set a timeout to stop streaming indicator (fallback)
-    setTimeout(() => {
+    streamTimeoutRef.current = setTimeout(() => {
       setIsStreaming(false);
-    }, 30000); // 30 second timeout
+    }, 60000); // 60 second timeout
+  };
+
+  const stopStreaming = () => {
+    console.log('Stop streaming called:', { 
+      hasWebSocket: !!wsRef.current, 
+      isConnected, 
+      isStreaming,
+      readyState: wsRef.current?.readyState 
+    });
+    
+    if (!wsRef.current) {
+      console.log('No WebSocket connection');
+      setIsStreaming(false);
+      return;
+    }
+    
+    if (wsRef.current.readyState !== WebSocket.OPEN) {
+      console.log('WebSocket not open, readyState:', wsRef.current.readyState);
+      setIsStreaming(false);
+      return;
+    }
+    
+    try {
+      console.log('Sending INTERRUPT command');
+      wsRef.current.send("INTERRUPT");
+      
+      // Don't immediately set streaming to false - wait for confirmation from backend
+      // Set a fallback timeout in case we don't get a response
+      setTimeout(() => {
+        console.log('Interrupt timeout - forcing stream stop');
+        setIsStreaming(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to send interrupt:', error);
+      setIsStreaming(false);
+    }
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -342,25 +403,28 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
             }}
           />
           <ActionIcon
-            onClick={sendMessage}
-            disabled={!inputValue.trim() || !isConnected || isStreaming}
+            onClick={isStreaming ? stopStreaming : sendMessage}
+            disabled={isStreaming ? false : (!inputValue.trim() || !isConnected)}
             variant="filled"
-            color="blue"
+            color={isStreaming ? "red" : "blue"}
             size="lg"
             radius="md"
             style={{
               transition: 'all 0.2s ease',
               '&:hover': {
                 transform: 'scale(1.05)',
-                boxShadow: '0 4px 12px rgba(51, 154, 240, 0.3)'
+                boxShadow: isStreaming 
+                  ? '0 4px 12px rgba(255, 82, 82, 0.3)'
+                  : '0 4px 12px rgba(51, 154, 240, 0.3)'
               },
               '&:disabled': {
                 opacity: 0.5,
                 cursor: 'not-allowed'
               }
             }}
+            title={isStreaming ? "Stop generation" : "Send message"}
           >
-            <IconSend size="1rem" />
+            {isStreaming ? <IconPlayerStop size="1rem" /> : <IconSend size="1rem" />}
           </ActionIcon>
         </Group>
       </Box>
