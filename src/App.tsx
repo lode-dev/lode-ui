@@ -266,11 +266,31 @@ function App() {
               />
             </Stack>
 
-            {/* Main Grid Layout */}
-            <Grid flex={1} gutter="lg" style={{ minHeight: 0, height: '100%', overflow: 'hidden' }}>
+            {/* Main Layout */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '16px', 
+              height: '100%',
+              minHeight: 0
+            }}>
               {/* Log Viewer - Left Column */}
-              <Grid.Col span={4} style={{ display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%' }}>
-                <ScrollArea style={{ height: '100%', minHeight: 0, overflow: 'auto' }} type="auto">
+              <div style={{ 
+                width: '33.333%',
+                height: '100%',
+                display: 'flex', 
+                flexDirection: 'column',
+                backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
+                borderRadius: '12px',
+                border: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef'
+              }}>
+                <ScrollArea 
+                  style={{ 
+                    flex: 1, 
+                    minHeight: 0,
+                    height: 'calc(100% - 80px)'
+                  }} 
+                  type="auto"
+                >
                   <Stack gap="sm" p="xs">
                     {logs.map((log, index) => (
                       <LogEntryCard
@@ -286,63 +306,68 @@ function App() {
                   </Stack>
                 </ScrollArea>
 
-                  {/* Pagination */}
-                  <Group justify="space-between" pt="md" pb="xs" style={{
-                    borderTop: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
-                    flexShrink: 0,
-                    height: '80px',
-                    backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
-                    borderRadius: '0 0 12px 12px',
-                    transition: 'background-color 0.3s ease'
-                  }}>
-                    <Select
-                      label="Per page"
-                      data={['10', '50', '100', '500']}
-                      value={pageSize}
-                      onChange={handlePageSizeChange}
-                      size="sm"
-                      radius="md"
-                      style={{ width: '120px' }}
-                      styles={{
-                        label: { fontWeight: 500, fontSize: '0.875rem' },
-                        input: { transition: 'all 0.2s ease' }
-                      }}
-                    />
-                    <Pagination
-                      total={totalPages}
-                      value={activePage}
-                      onChange={setPage}
-                      size="sm"
-                      radius="md"
-                      styles={{
-                        control: {
-                          transition: 'all 0.2s ease',
-                          '&[data-active]': {
-                            backgroundColor: '#339af0',
-                            borderColor: '#339af0',
-                            transform: 'scale(1.05)'
-                          },
-                          '&:hover': {
-                            backgroundColor: colorScheme === 'dark' ? '#373a40' : '#f1f3f5'
-                          }
+                {/* Pagination */}
+                <Group justify="space-between" pt="md" pb="xs" px="md" style={{
+                  borderTop: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
+                  flexShrink: 0,
+                  height: '80px',
+                  backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
+                  borderRadius: '0 0 12px 12px',
+                  transition: 'background-color 0.3s ease'
+                }}>
+                  <Select
+                    label="Per page"
+                    data={['10', '50', '100', '500']}
+                    value={pageSize}
+                    onChange={handlePageSizeChange}
+                    size="sm"
+                    radius="md"
+                    style={{ width: '120px' }}
+                    styles={{
+                      label: { fontWeight: 500, fontSize: '0.875rem' },
+                      input: { transition: 'all 0.2s ease' }
+                    }}
+                  />
+                  <Pagination
+                    total={totalPages}
+                    value={activePage}
+                    onChange={setPage}
+                    size="sm"
+                    radius="md"
+                    styles={{
+                      control: {
+                        transition: 'all 0.2s ease',
+                        '&[data-active]': {
+                          backgroundColor: '#339af0',
+                          borderColor: '#339af0',
+                          transform: 'scale(1.05)'
+                        },
+                        '&:hover': {
+                          backgroundColor: colorScheme === 'dark' ? '#373a40' : '#f1f3f5'
                         }
-                      }}
-                    />
-                  </Group>
-              </Grid.Col>
+                      }
+                    }}
+                  />
+                </Group>
+              </div>
 
               {/* Log Detail - Center Column */}
-              <Grid.Col span={4} style={{ height: '100%' }}>
+              <div style={{ width: '33.333%', height: '100%' }}>
                 <LogDetailPanel
                   log={selectedLog}
                   onAnalyzeLog={handleAnalyzeLog}
                   onAddToContext={handleAddLogToContext}
                 />
-              </Grid.Col>
+              </div>
 
               {/* Right Column - Chat and Context */}
-              <Grid.Col span={4} style={{ height: '100%' }}>
-                <Stack h="100%" gap="md">
+              <div style={{ width: '33.333%', height: '100%' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  height: '100%', 
+                  gap: '16px' 
+                }}>
                   {/* Chat Panel */}
                   <div style={{ flex: 2, minHeight: 0 }}>
                     <ChatPanel
@@ -361,9 +386,9 @@ function App() {
                       onClearContext={handleClearContext}
                     />
                   </div>
-                </Stack>
-              </Grid.Col>
-            </Grid>
+                </div>
+              </div>
+            </div>
           </Stack>
         </Container>
       </AppShell.Main>
