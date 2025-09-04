@@ -14,8 +14,7 @@ function Footer() {
       backdropFilter: 'blur(10px)',
       padding: '16px 0'
     }}>
-      <Container size="xl">
-        <Group justify="space-between" align="center">
+        <Group justify="space-between" align="center" px="xl">
           <svg width={32} height={32} viewBox="0 0 32 32" fill="none">
             <path
               d="M8 6 L8 20 L20 20 L20 18 L10 18 L10 6 Z"
@@ -66,7 +65,6 @@ function Footer() {
             </Group>
           </Group>
         </Group>
-      </Container>
     </footer>
   );
 }

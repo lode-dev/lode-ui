@@ -191,8 +191,7 @@ function App() {
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
         transition: 'all 0.3s ease'
       }}>
-        <Container size="xl" h="100%">
-          <Group h="100%" justify="space-between" px="lg">
+        <Group h="100%" justify="space-between" px="xl">
             <Logo size="md" />
             <Group gap="md">
               <ActionIcon
@@ -223,8 +222,7 @@ function App() {
                 }}
               />
             </Group>
-          </Group>
-        </Container>
+        </Group>
       </AppShell.Header>
 
       <AppShell.Main style={{ height: 'calc(100vh - 132px)', overflow: 'hidden' }}>
