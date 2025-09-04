@@ -202,6 +202,22 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
                 {contextLogs.length} log{contextLogs.length !== 1 ? 's' : ''} in context
               </Badge>
             )}
+            <ActionIcon
+              size="sm"
+              variant="subtle"
+              color="red"
+              onClick={() => setMessages([])}
+              title="Clear chat history"
+              style={{
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  backgroundColor: colorScheme === 'dark' ? 'rgba(255, 82, 82, 0.1)' : 'rgba(255, 82, 82, 0.1)',
+                  transform: 'scale(1.1)'
+                }
+              }}
+            >
+              <IconTrash size="0.8rem" />
+            </ActionIcon>
             <Box
               style={{
                 width: '8px',
