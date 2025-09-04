@@ -12,11 +12,12 @@ interface LogEntryCardProps {
   onAnalyzeLog: (log: LogEntryCardProps['log']) => void;
   isSelected: boolean;
   onToggleSelection: () => void;
+  onSelectLog: () => void;
 }
 
 const CLICKABLE_METADATA_KEYS = ['user_id', 'trace_id', 'source_ip'];
 
-function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggleSelection }: LogEntryCardProps) {
+function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggleSelection, onSelectLog }: LogEntryCardProps) {
   const { colorScheme } = useMantineColorScheme();
 
   const getLogLevelColor = (level: string) => {
@@ -44,21 +45,21 @@ function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggle
           ? (colorScheme === 'dark' ? '2px solid #339af0' : '2px solid #339af0')
           : (colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef'),
         transition: 'all 0.2s ease',
-        '&:hover': {
-          boxShadow: colorScheme === 'dark' 
-            ? '0 4px 12px rgba(0, 0, 0, 0.3)' 
-            : '0 4px 12px rgba(0, 0, 0, 0.08)',
-          transform: 'translateY(-1px)'
-        }
+        cursor: 'pointer'
       }}
+      onClick={onSelectLog}
     >
       <Group justify="space-between" mb="sm">
         <Group align="center" gap="md">
           <Checkbox
             checked={isSelected}
-            onChange={onToggleSelection}
+            onChange={(e) => {
+              e.stopPropagation();
+              onToggleSelection();
+            }}
             size="sm"
             color="blue"
+            onClick={(e) => e.stopPropagation()}
           />
           <Badge 
             color={getLogLevelColor(log.level)} 
@@ -79,7 +80,10 @@ function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggle
             variant="light"
             color="blue"
             leftSection={<IconBrain size="0.8rem" />}
-            onClick={() => onAnalyzeLog(log)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAnalyzeLog(log);
+            }}
             radius="md"
           >
             Analyze this Log
@@ -115,7 +119,10 @@ function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggle
                       <ActionIcon 
                         size="sm" 
                         variant="subtle" 
-                        onClick={() => onMetadataClick(`metadata.${key}`, value)} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onMetadataClick(`metadata.${key}`, value);
+                        }}
                         title={`Filter by ${key}: ${value}`}
                         radius="md"
                         style={{

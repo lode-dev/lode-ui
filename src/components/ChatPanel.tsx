@@ -169,21 +169,13 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
     }
   };
 
-  if (!isOpen) return null;
-
   return (
     <Paper
-      shadow="lg"
+      withBorder
       radius="lg"
       style={{
-        position: 'fixed',
-        bottom: '80px',
-        right: '20px',
-        width: '400px',
-        height: '500px',
-        zIndex: 1000,
+        height: '100%',
         backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
-        border: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
         display: 'flex',
         flexDirection: 'column'
       }}
@@ -217,19 +209,6 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
             />
           </Group>
         </Group>
-        {contextLogs.length > 0 && (
-          <Group gap="xs" mt="xs">
-            <Button
-              size="xs"
-              variant="subtle"
-              color="red"
-              leftSection={<IconTrash size="0.7rem" />}
-              onClick={onClearContext}
-            >
-              Clear Context
-            </Button>
-          </Group>
-        )}
       </Box>
 
       {/* Messages */}

@@ -3,15 +3,17 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   AppShell, TextInput, ScrollArea, Group, Switch, Stack,
-  Pagination, Select, Container, ActionIcon, useMantineColorScheme, Affix
+  Pagination, Select, Container, ActionIcon, useMantineColorScheme, Grid
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconSearch, IconSun, IconMoon, IconMessageCircle, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconSearch, IconSun, IconMoon, IconTrash, IconPlus } from '@tabler/icons-react';
 import LogEntryCard from './LogEntryCard';
 import FilterBar from './FilterBar';
 import Logo from './components/Logo';
 import Footer from './components/Footer';
 import ChatPanel from './components/ChatPanel';
+import LogDetailPanel from './components/LogDetailPanel';
+import ContextTray from './components/ContextTray';
 
 interface Log {
   level: string;
@@ -49,9 +51,9 @@ function App() {
   const [pageSize, setPageSize] = useState<string>('50');
 
   const [debouncedSearchTerm] = useDebouncedValue(searchTerm, 300);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [contextLogs, setContextLogs] = useState<Log[]>([]);
   const [selectedLogIndices, setSelectedLogIndices] = useState<Set<number>>(new Set());
+  const [selectedLog, setSelectedLog] = useState<Log | null>(null);
 
   useEffect(() => {
     if (isLive) return;
@@ -122,7 +124,22 @@ function App() {
 
   const handleAnalyzeLog = (log: Log) => {
     setContextLogs([log]);
-    setIsChatOpen(true);
+  };
+
+  const handleAddLogToContext = (log: Log) => {
+    if (!contextLogs.some(contextLog => 
+      contextLog.timestamp === log.timestamp && contextLog.message === log.message
+    )) {
+      setContextLogs(prev => [...prev, log]);
+    }
+  };
+
+  const handleRemoveLogFromContext = (index: number) => {
+    setContextLogs(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSelectLog = (log: Log) => {
+    setSelectedLog(log);
   };
 
   const handleToggleLogSelection = (index: number) => {
@@ -139,9 +156,13 @@ function App() {
 
   const handleAddSelectedToContext = () => {
     const selectedLogs = logs.filter((_, index) => selectedLogIndices.has(index));
-    setContextLogs(prev => [...prev, ...selectedLogs]);
+    const newLogs = selectedLogs.filter(log => 
+      !contextLogs.some(contextLog => 
+        contextLog.timestamp === log.timestamp && contextLog.message === log.message
+      )
+    );
+    setContextLogs(prev => [...prev, ...newLogs]);
     setSelectedLogIndices(new Set());
-    setIsChatOpen(true);
   };
 
   const handleClearContext = () => {
@@ -149,22 +170,22 @@ function App() {
   };
 
   return (
-    <AppShell 
-      header={{ height: 72 }} 
+    <AppShell
+      header={{ height: 72 }}
       footer={{ height: 60 }}
-      padding={0} 
-      style={{ 
+      padding={0}
+      style={{
         backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#fafafa',
         height: '100vh'
       }}
     >
-      <AppShell.Header style={{ 
-        backgroundColor: colorScheme === 'dark' 
-          ? 'rgba(26, 27, 30, 0.8)' 
-          : 'rgba(255, 255, 255, 0.8)', 
+      <AppShell.Header style={{
+        backgroundColor: colorScheme === 'dark'
+          ? 'rgba(26, 27, 30, 0.8)'
+          : 'rgba(255, 255, 255, 0.8)',
         backdropFilter: 'blur(20px)',
-        borderBottom: colorScheme === 'dark' 
-          ? '1px solid #373a40' 
+        borderBottom: colorScheme === 'dark'
+          ? '1px solid #373a40'
           : '1px solid #e9ecef'
       }}>
         <Container size="xl" h="100%">
@@ -180,11 +201,11 @@ function App() {
               >
                 {colorScheme === 'dark' ? <IconSun size="1.2rem" /> : <IconMoon size="1.2rem" />}
               </ActionIcon>
-              <Switch 
-                size="md" 
-                color="blue.6" 
-                checked={isLive} 
-                onChange={(event) => setIsLive(event.currentTarget.checked)} 
+              <Switch
+                size="md"
+                color="blue.6"
+                checked={isLive}
+                onChange={(event) => setIsLive(event.currentTarget.checked)}
                 label="Live Tail"
                 styles={{
                   track: { cursor: 'pointer' },
@@ -197,87 +218,129 @@ function App() {
       </AppShell.Header>
 
       <AppShell.Main style={{ height: 'calc(100vh - 132px)', overflow: 'hidden' }}>
-        <Container size="xl" h="100%" py="lg">
-          <Stack gap="lg" h="100%">
-            <TextInput
-              leftSection={<IconSearch size="1.2rem" stroke={1.5} />}
-              placeholder="Search logs..."
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.currentTarget.value)}
-              size="lg"
-              radius="xl"
-              styles={{
-                input: {
-                  backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
-                  border: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-                  color: colorScheme === 'dark' ? '#c1c2c5' : '#495057',
-                  '&:focus': {
-                    borderColor: '#339af0',
-                    boxShadow: '0 0 0 3px rgba(51, 154, 240, 0.1)'
-                  }
-                }
-              }}
-            />
-            
-            <FilterBar 
-              filters={filters} 
-              onRemoveFilter={handleRemoveFilter}
-              suggestions={suggestions}
-              onAddFilter={handleAddFilter}
-            />
-
-            <ScrollArea flex={1} type="scroll">
-              <Stack gap="md">
-                {logs.map((log, index) => (
-                  <LogEntryCard 
-                    key={index} 
-                    log={log} 
-                    onMetadataClick={handleAddFilter}
-                    onAnalyzeLog={handleAnalyzeLog}
-                    isSelected={selectedLogIndices.has(index)}
-                    onToggleSelection={() => handleToggleLogSelection(index)}
-                  />
-                ))}
-              </Stack>
-            </ScrollArea>
-
-            <Group justify="space-between" pt="md" style={{ 
-              borderTop: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
-              backgroundColor: colorScheme === 'dark' 
-                ? 'rgba(26, 27, 30, 0.8)' 
-                : 'rgba(255, 255, 255, 0.8)',
-              backdropFilter: 'blur(10px)',
-              flexShrink: 0
-            }}>
-              <Select
-                label="Per page"
-                data={['10', '50', '100', '500']}
-                value={pageSize}
-                onChange={handlePageSizeChange}
-                size="sm"
-                radius="md"
-                style={{ width: '120px' }}
+        <Container size="100%" h="100%" p="lg">
+          <Stack gap="md" h="100%">
+            {/* Search and Filters */}
+            <Stack gap="md" style={{ flexShrink: 0 }}>
+              <TextInput
+                leftSection={<IconSearch size="1.2rem" stroke={1.5} />}
+                placeholder="Search logs..."
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.currentTarget.value)}
+                size="lg"
+                radius="xl"
                 styles={{
-                  label: { fontWeight: 500, fontSize: '0.875rem' }
-                }}
-              />
-              <Pagination 
-                total={totalPages} 
-                value={activePage} 
-                onChange={setPage}
-                size="sm"
-                radius="md"
-                styles={{
-                  control: {
-                    '&[data-active]': {
-                      backgroundColor: '#339af0',
-                      borderColor: '#339af0'
+                  input: {
+                    backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
+                    border: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+                    color: colorScheme === 'dark' ? '#c1c2c5' : '#495057',
+                    '&:focus': {
+                      borderColor: '#339af0',
+                      boxShadow: '0 0 0 3px rgba(51, 154, 240, 0.1)'
                     }
                   }
                 }}
               />
-            </Group>
+
+              <FilterBar
+                filters={filters}
+                onRemoveFilter={handleRemoveFilter}
+                suggestions={suggestions}
+                onAddFilter={handleAddFilter}
+              />
+            </Stack>
+
+            {/* Main Grid Layout */}
+            <Grid flex={1} gutter="lg" style={{ minHeight: 0, height: '100%', overflow: 'hidden' }}>
+              {/* Log Viewer - Left Column */}
+              <Grid.Col span={4} style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                <ScrollArea style={{ flex: 1, minHeight: 0, overflow: 'auto' }} type="auto">
+                  <Stack gap="md" p="xs">
+                    {logs.map((log, index) => (
+                      <LogEntryCard
+                        key={index}
+                        log={log}
+                        onMetadataClick={handleAddFilter}
+                        onAnalyzeLog={handleAnalyzeLog}
+                        isSelected={selectedLogIndices.has(index)}
+                        onToggleSelection={() => handleToggleLogSelection(index)}
+                        onSelectLog={() => handleSelectLog(log)}
+                      />
+                    ))}
+                  </Stack>
+                </ScrollArea>
+
+                  {/* Pagination */}
+                  <Group justify="space-between" pt="md" pb="xs" style={{
+                    borderTop: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
+                    flexShrink: 0,
+                    height: '80px',
+                    backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white'
+                  }}>
+                    <Select
+                      label="Per page"
+                      data={['10', '50', '100', '500']}
+                      value={pageSize}
+                      onChange={handlePageSizeChange}
+                      size="sm"
+                      radius="md"
+                      style={{ width: '120px' }}
+                      styles={{
+                        label: { fontWeight: 500, fontSize: '0.875rem' }
+                      }}
+                    />
+                    <Pagination
+                      total={totalPages}
+                      value={activePage}
+                      onChange={setPage}
+                      size="sm"
+                      radius="md"
+                      styles={{
+                        control: {
+                          '&[data-active]': {
+                            backgroundColor: '#339af0',
+                            borderColor: '#339af0'
+                          }
+                        }
+                      }}
+                    />
+                  </Group>
+              </Grid.Col>
+
+              {/* Log Detail - Center Column */}
+              <Grid.Col span={4} style={{ height: '100%' }}>
+                <LogDetailPanel
+                  log={selectedLog}
+                  onAnalyzeLog={handleAnalyzeLog}
+                  onAddToContext={handleAddLogToContext}
+                />
+              </Grid.Col>
+
+              {/* Right Column - Chat and Context */}
+              <Grid.Col span={4} style={{ height: '100%' }}>
+                <Stack h="100%" gap="md">
+                  {/* Chat Panel */}
+                  <div style={{ flex: 2, minHeight: 0 }}>
+                    <ChatPanel
+                      isOpen={true}
+                      contextLogs={contextLogs}
+                      activeFilters={filters}
+                      onClearContext={handleClearContext}
+                    />
+                  </div>
+
+                  {/* Context Tray */}
+                  <div style={{ flex: 1, minHeight: 0, maxHeight: '300px' }}>
+                    <ContextTray
+                      contextLogs={contextLogs}
+                      onRemoveLog={handleRemoveLogFromContext}
+                      onClearContext={handleClearContext}
+                    />
+                  </div>
+                </Stack>
+              </Grid.Col>
+            </Grid>
           </Stack>
         </Container>
       </AppShell.Main>
@@ -286,29 +349,22 @@ function App() {
         <Footer />
       </AppShell.Footer>
 
-      {/* Chat Toggle Button */}
-      <Affix position={{ bottom: 20, right: 20 }}>
-        <ActionIcon
-          size="xl"
-          radius="xl"
-          variant="filled"
-          color="blue"
-          onClick={() => setIsChatOpen(!isChatOpen)}
-          style={{
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            transition: 'transform 0.2s ease',
-            '&:hover': {
-              transform: 'scale(1.05)'
-            }
-          }}
-        >
-          <IconMessageCircle size="1.5rem" />
-        </ActionIcon>
-      </Affix>
-
       {/* Floating Action Bar for Selected Logs */}
       {selectedLogIndices.size > 0 && (
-        <Affix position={{ bottom: 80, right: 20 }}>
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
+            backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
+            border: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
+            borderRadius: '12px',
+            padding: '12px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          }}
+        >
           <Group gap="xs">
             <ActionIcon
               size="lg"
@@ -316,9 +372,6 @@ function App() {
               variant="filled"
               color="red"
               onClick={() => setSelectedLogIndices(new Set())}
-              style={{
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-              }}
             >
               <IconTrash size="1.2rem" />
             </ActionIcon>
@@ -328,23 +381,12 @@ function App() {
               variant="filled"
               color="green"
               onClick={handleAddSelectedToContext}
-              style={{
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-              }}
             >
               <IconPlus size="1.2rem" />
             </ActionIcon>
           </Group>
-        </Affix>
+        </div>
       )}
-
-      {/* Chat Panel */}
-      <ChatPanel 
-        isOpen={isChatOpen} 
-        contextLogs={contextLogs}
-        activeFilters={filters}
-        onClearContext={handleClearContext}
-      />
     </AppShell>
   );
 }
