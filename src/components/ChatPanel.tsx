@@ -226,72 +226,76 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
           transition: 'background-color 0.3s ease'
         }}
       >
-        <Box
-          style={{
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <Stack gap="md">
-            {messages.length === 0 && (
-              <Text size="sm" c="dimmed" ta="center" mt="xl" style={{ transition: 'color 0.2s ease' }}>
-                Ask me anything about your logs!
-              </Text>
-            )}
-            {messages.map((message) => (
-              <Group
-                key={message.id}
-                align="flex-start"
-                gap="xs"
+        <Stack gap="md" style={{ width: '100%' }}>
+          {messages.length === 0 && (
+            <Text size="sm" c="dimmed" ta="center" mt="xl" style={{ transition: 'color 0.2s ease' }}>
+              Ask me anything about your logs!
+            </Text>
+          )}
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              style={{
+                display: 'flex',
+                flexDirection: message.sender === 'user' ? 'row-reverse' : 'row',
+                alignItems: 'flex-start',
+                gap: '8px',
+                width: '100%',
+                animation: 'fadeInUp 0.3s ease'
+              }}
+            >
+              <ActionIcon
+                size="sm"
+                variant="light"
+                color={message.sender === 'user' ? 'blue' : 'green'}
                 style={{
-                  flexDirection: message.sender === 'user' ? 'row-reverse' : 'row',
-                  animation: 'fadeInUp 0.3s ease'
+                  marginTop: '2px',
+                  flexShrink: 0,
+                  transition: 'all 0.2s ease',
+                  '&:hover': { transform: 'scale(1.1)' }
                 }}
               >
-                <ActionIcon
-                  size="sm"
-                  variant="light"
-                  color={message.sender === 'user' ? 'blue' : 'green'}
-                  style={{
-                    marginTop: '2px',
-                    flexShrink: 0,
-                    transition: 'all 0.2s ease',
-                    '&:hover': { transform: 'scale(1.1)' }
+                {message.sender === 'user' ? <IconUser size="0.8rem" /> : <IconRobot size="0.8rem" />}
+              </ActionIcon>
+              <Paper
+                p="sm"
+                radius="lg"
+                style={{
+                  backgroundColor: message.sender === 'user'
+                    ? (colorScheme === 'dark' ? '#339af0' : '#228be6')
+                    : (colorScheme === 'dark' ? '#2b2c30' : '#f8f9fa'),
+                  color: message.sender === 'user' ? 'white' : undefined,
+                  minWidth: '120px',
+                  maxWidth: '75%',
+                  wordBreak: 'break-word',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
+                  border: message.sender === 'assistant' 
+                    ? (colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef')
+                    : 'none',
+                  '&:hover': {
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                  }
+                }}
+              >
+                <Text 
+                  size="sm" 
+                  style={{ 
+                    whiteSpace: 'pre-wrap', 
+                    transition: 'color 0.2s ease',
+                    lineHeight: 1.4
                   }}
                 >
-                  {message.sender === 'user' ? <IconUser size="0.8rem" /> : <IconRobot size="0.8rem" />}
-                </ActionIcon>
-                <Paper
-                  p="xs"
-                  radius="md"
-                  style={{
-                    backgroundColor: message.sender === 'user'
-                      ? (colorScheme === 'dark' ? '#339af0' : '#e7f5ff')
-                      : (colorScheme === 'dark' ? '#2b2c30' : '#f8f9fa'),
-                    color: message.sender === 'user' && colorScheme === 'light' ? '#1971c2' : undefined,
-                    maxWidth: '80%',
-                    wordBreak: 'break-word',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
-                    '&:hover': {
-                      transform: 'translateY(-1px)',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                    }
-                  }}
-                >
-                  <Text size="sm" style={{ whiteSpace: 'pre-wrap', transition: 'color 0.2s ease' }}>
-                    {message.content}
-                    {message.sender === 'assistant' && isStreaming && message.content === currentResponseRef.current && (
-                      <Loader size="xs" ml="xs" style={{ display: 'inline-block' }} />
-                    )}
-                  </Text>
-                </Paper>
-              </Group>
-            ))}
-          </Stack>
-        </Box>
+                  {message.content}
+                  {message.sender === 'assistant' && isStreaming && message.content === currentResponseRef.current && (
+                    <Loader size="xs" ml="xs" style={{ display: 'inline-block' }} />
+                  )}
+                </Text>
+              </Paper>
+            </div>
+          ))}
+        </Stack>
       </ScrollArea>
 
       {/* Input */}
