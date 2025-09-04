@@ -300,6 +300,7 @@ function App() {
                         isSelected={selectedLogIndices.has(index)}
                         onToggleSelection={() => handleToggleLogSelection(index)}
                         onSelectLog={() => handleSelectLog(log)}
+                        isInMainView={selectedLog === log}
                       />
                     ))}
                   </Stack>

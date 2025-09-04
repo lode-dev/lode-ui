@@ -12,11 +12,12 @@ interface LogEntryCardProps {
   isSelected: boolean;
   onToggleSelection: () => void;
   onSelectLog: () => void;
+  isInMainView?: boolean;
 }
 
 const CLICKABLE_METADATA_KEYS = ['user_id', 'trace_id', 'source_ip'];
 
-function LogEntryCard({ log, onMetadataClick, isSelected, onToggleSelection, onSelectLog }: LogEntryCardProps) {
+function LogEntryCard({ log, onMetadataClick, isSelected, onToggleSelection, onSelectLog, isInMainView = false }: LogEntryCardProps) {
   const { colorScheme } = useMantineColorScheme();
 
   const getLogLevelColor = (level: string) => {
@@ -37,19 +38,31 @@ function LogEntryCard({ log, onMetadataClick, isSelected, onToggleSelection, onS
       radius="xl" 
       shadow="xs"
       style={{
-        backgroundColor: isSelected 
+        backgroundColor: isInMainView
+          ? (colorScheme === 'dark' ? '#2d3748' : '#e6fffa')
+          : isSelected 
           ? (colorScheme === 'dark' ? '#2b2c30' : '#f0f8ff')
           : (colorScheme === 'dark' ? '#25262b' : 'white'),
-        border: isSelected
+        border: isInMainView
+          ? (colorScheme === 'dark' ? '2px solid #38a169' : '2px solid #38a169')
+          : isSelected
           ? (colorScheme === 'dark' ? '2px solid #339af0' : '2px solid #339af0')
           : (colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef'),
         transition: 'all 0.3s ease',
         cursor: 'pointer',
-        boxShadow: isSelected ? '0 4px 12px rgba(51, 154, 240, 0.2)' : '0 2px 6px rgba(0, 0, 0, 0.05)',
+        boxShadow: isInMainView 
+          ? '0 4px 12px rgba(56, 161, 105, 0.3)' 
+          : isSelected 
+          ? '0 4px 12px rgba(51, 154, 240, 0.2)' 
+          : '0 2px 6px rgba(0, 0, 0, 0.05)',
         '&:hover': {
           transform: 'translateY(-2px)',
-          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.1)',
-          borderColor: colorScheme === 'dark' ? '#5c5f66' : '#adb5bd'
+          boxShadow: isInMainView 
+            ? '0 6px 16px rgba(56, 161, 105, 0.4)' 
+            : '0 6px 16px rgba(0, 0, 0, 0.1)',
+          borderColor: isInMainView 
+            ? (colorScheme === 'dark' ? '#48bb78' : '#48bb78')
+            : (colorScheme === 'dark' ? '#5c5f66' : '#adb5bd')
         }
       }}
       onClick={onSelectLog}
