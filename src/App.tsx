@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   AppShell, TextInput, ScrollArea, Group, Switch, Stack,
-  Pagination, Select, Container, ActionIcon, useMantineColorScheme, Grid
+  Pagination, Select, Container, ActionIcon, useMantineColorScheme, Grid, Text
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconSun, IconMoon, IconTrash, IconPlus } from '@tabler/icons-react';
@@ -289,7 +289,7 @@ function App() {
                     minHeight: 0,
                     height: 'calc(100% - 80px)'
                   }} 
-                  type="auto"
+                  type="never"
                 >
                   <Stack gap="sm" p="xs">
                     {logs.map((log, index) => (
@@ -314,19 +314,20 @@ function App() {
                   borderRadius: '0 0 12px 12px',
                   transition: 'background-color 0.3s ease'
                 }}>
-                  <Select
-                    label="Per page"
-                    data={['10', '50', '100', '500']}
-                    value={pageSize}
-                    onChange={handlePageSizeChange}
-                    size="sm"
-                    radius="md"
-                    style={{ width: '120px' }}
-                    styles={{
-                      label: { fontWeight: 500, fontSize: '0.875rem' },
-                      input: { transition: 'all 0.2s ease' }
-                    }}
-                  />
+                  <Group gap="xs" align="center">
+                    <Text size="sm" fw={500}>Per page:</Text>
+                    <Select
+                      data={['10', '50', '100', '500']}
+                      value={pageSize}
+                      onChange={handlePageSizeChange}
+                      size="sm"
+                      radius="md"
+                      style={{ width: '80px' }}
+                      styles={{
+                        input: { transition: 'all 0.2s ease' }
+                      }}
+                    />
+                  </Group>
                   <Pagination
                     total={totalPages}
                     value={activePage}
