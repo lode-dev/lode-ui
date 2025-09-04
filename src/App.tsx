@@ -72,7 +72,7 @@ function App() {
         params.append('sort', 'timestamp:desc');
 
         const response = await axios.get(`http://localhost:8000/v1/search?${params.toString()}`);
-        setLogs(response.data.results);
+      setLogs(response.data.results || []);
         setTotalPages(Math.ceil(response.data.total / parseInt(pageSize, 10)));
         
         // Fetch suggestions if no filters are active
@@ -200,13 +200,20 @@ function App() {
                 radius="md"
                 onClick={() => toggleColorScheme()}
                 title="Toggle color scheme"
-                style={{
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    backgroundColor: colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-                    transform: 'scale(1.05)'
-                  }
-                }}
+                styles={{
+                  control: (theme, params) => ({
+                    transition: 'all 0.2s ease',
+                    ...(params?.active && {
+                      backgroundColor: '#339af0',
+                      borderColor: '#339af0',
+                      transform: 'scale(1.05)',
+                    }),
+                    '&:hover': {
+                      backgroundColor: colorScheme === 'dark' ? '#373a40' : '#f1f3f5'
+                    }
+                })
+              }}
+
               >
                 {colorScheme === 'dark' ? <IconSun size="1.2rem" /> : <IconMoon size="1.2rem" />}
               </ActionIcon>
