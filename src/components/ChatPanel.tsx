@@ -152,9 +152,6 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
     // Send structured JSON to WebSocket
     wsRef.current.send(JSON.stringify(messagePayload));
     setInputValue('');
-    
-    // Clear context logs after sending
-    onClearContext();
 
     // Set a timeout to stop streaming indicator (fallback)
     setTimeout(() => {
