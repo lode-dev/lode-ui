@@ -297,7 +297,6 @@ function App() {
                         key={index}
                         log={log}
                         onMetadataClick={handleAddFilter}
-                        onAnalyzeLog={handleAnalyzeLog}
                         isSelected={selectedLogIndices.has(index)}
                         onToggleSelection={() => handleToggleLogSelection(index)}
                         onSelectLog={() => handleSelectLog(log)}

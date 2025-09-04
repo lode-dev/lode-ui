@@ -1,5 +1,5 @@
-import { Paper, Group, Text, Badge, Code, Accordion, ActionIcon, useMantineColorScheme, Checkbox, Button } from '@mantine/core';
-import { IconFilter, IconChevronDown, IconBrain } from '@tabler/icons-react';
+import { Paper, Group, Text, Badge, Code, Accordion, ActionIcon, useMantineColorScheme, Checkbox } from '@mantine/core';
+import { IconFilter, IconChevronDown } from '@tabler/icons-react';
 
 interface LogEntryCardProps {
   log: {
@@ -9,7 +9,6 @@ interface LogEntryCardProps {
     metadata: Record<string, any>;
   };
   onMetadataClick: (key: string, value: any) => void;
-  onAnalyzeLog: (log: LogEntryCardProps['log']) => void;
   isSelected: boolean;
   onToggleSelection: () => void;
   onSelectLog: () => void;
@@ -17,7 +16,7 @@ interface LogEntryCardProps {
 
 const CLICKABLE_METADATA_KEYS = ['user_id', 'trace_id', 'source_ip'];
 
-function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggleSelection, onSelectLog }: LogEntryCardProps) {
+function LogEntryCard({ log, onMetadataClick, isSelected, onToggleSelection, onSelectLog }: LogEntryCardProps) {
   const { colorScheme } = useMantineColorScheme();
 
   const getLogLevelColor = (level: string) => {
@@ -86,31 +85,9 @@ function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggle
             {log.message}
           </Text>
         </Group>
-        <Group gap="xs">
-          <Button
-            size="xs"
-            variant="light"
-            color="blue"
-            leftSection={<IconBrain size="0.8rem" />}
-            onClick={(e) => {
-              e.stopPropagation();
-              onAnalyzeLog(log);
-            }}
-            radius="md"
-            style={{
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                transform: 'scale(1.05)',
-                boxShadow: '0 2px 8px rgba(51, 154, 240, 0.3)'
-              }
-            }}
-          >
-            Analyze this Log
-          </Button>
-          <Text c="dimmed" size="sm" fw={500} style={{ transition: 'color 0.2s ease' }}>
-            {new Date(log.timestamp).toLocaleString()}
-          </Text>
-        </Group>
+        <Text c="dimmed" size="sm" fw={500} style={{ transition: 'color 0.2s ease' }}>
+          {new Date(log.timestamp).toLocaleString()}
+        </Text>
       </Group>
 
       {Object.keys(log.metadata).length > 0 && (
