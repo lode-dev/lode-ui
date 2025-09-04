@@ -34,7 +34,7 @@ function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggle
   return (
     <Paper 
       withBorder 
-      p="lg" 
+      p="md" 
       radius="xl" 
       shadow="xs"
       style={{
@@ -44,12 +44,18 @@ function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggle
         border: isSelected
           ? (colorScheme === 'dark' ? '2px solid #339af0' : '2px solid #339af0')
           : (colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef'),
-        transition: 'all 0.2s ease',
-        cursor: 'pointer'
+        transition: 'all 0.3s ease',
+        cursor: 'pointer',
+        boxShadow: isSelected ? '0 4px 12px rgba(51, 154, 240, 0.2)' : '0 2px 6px rgba(0, 0, 0, 0.05)',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.1)',
+          borderColor: colorScheme === 'dark' ? '#5c5f66' : '#adb5bd'
+        }
       }}
       onClick={onSelectLog}
     >
-      <Group justify="space-between" mb="sm">
+      <Group justify="space-between" mb="xs">
         <Group align="center" gap="md">
           <Checkbox
             checked={isSelected}
@@ -60,17 +66,23 @@ function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggle
             size="sm"
             color="blue"
             onClick={(e) => e.stopPropagation()}
+            style={{ transition: 'all 0.2s ease' }}
           />
           <Badge 
             color={getLogLevelColor(log.level)} 
             variant="light" 
-            size="lg"
+            size="md"
             radius="md"
-            style={{ fontWeight: 600, letterSpacing: '0.5px' }}
+            style={{ 
+              fontWeight: 600, 
+              letterSpacing: '0.5px',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+            }}
           >
             {log.level.toUpperCase()}
           </Badge>
-          <Text fw={500} size="md" style={{ lineHeight: 1.4 }}>
+          <Text fw={500} size="md" style={{ lineHeight: 1.4, transition: 'color 0.2s ease' }}>
             {log.message}
           </Text>
         </Group>
@@ -85,36 +97,51 @@ function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggle
               onAnalyzeLog(log);
             }}
             radius="md"
+            style={{
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow: '0 2px 8px rgba(51, 154, 240, 0.3)'
+              }
+            }}
           >
             Analyze this Log
           </Button>
-          <Text c="dimmed" size="sm" fw={500}>
+          <Text c="dimmed" size="sm" fw={500} style={{ transition: 'color 0.2s ease' }}>
             {new Date(log.timestamp).toLocaleString()}
           </Text>
         </Group>
       </Group>
 
       {Object.keys(log.metadata).length > 0 && (
-        <Accordion variant="transparent" mt="md">
+        <Accordion variant="transparent" mt="sm">
           <Accordion.Item value="metadata" style={{ border: 'none' }}>
-            <Accordion.Control style={{ padding: '8px 0' }}>
+            <Accordion.Control style={{ 
+              padding: '8px 0',
+              transition: 'all 0.2s ease',
+              '&:hover': { backgroundColor: 'transparent' }
+            }}>
               <Group gap="xs">
                 <Text size="sm" fw={500} c="dimmed">Metadata</Text>
-                <IconChevronDown size="0.8rem" color={colorScheme === 'dark' ? '#909296' : '#868e96'} />
+                <IconChevronDown size="0.8rem" color={colorScheme === 'dark' ? '#909296' : '#868e96'} style={{ transition: 'transform 0.2s ease' }} />
               </Group>
             </Accordion.Control>
-            <Accordion.Panel pt="sm">
+            <Accordion.Panel pt="xs" style={{ animation: 'fadeIn 0.3s ease' }}>
               <Code 
                 block 
                 style={{
                   backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#f8f9fa',
                   border: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
-                  borderRadius: '8px',
-                  padding: '12px'
+                  borderRadius: '12px',
+                  padding: '12px',
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  transition: 'all 0.3s ease',
+                  boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)'
                 }}
               >
                 {Object.entries(log.metadata).map(([key, value]) => (
-                  <Group key={key} wrap="nowrap" gap="sm" mb="xs">
+                  <Group key={key} wrap="nowrap" gap="sm" mb="0" style={{ transition: 'all 0.2s ease' }}>
                     {CLICKABLE_METADATA_KEYS.includes(key) ? (
                       <ActionIcon 
                         size="sm" 
@@ -126,8 +153,10 @@ function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggle
                         title={`Filter by ${key}: ${value}`}
                         radius="md"
                         style={{
+                          transition: 'all 0.2s ease',
                           '&:hover': {
-                            backgroundColor: colorScheme === 'dark' ? '#364fc7' : '#e7f5ff'
+                            backgroundColor: colorScheme === 'dark' ? '#364fc7' : '#e7f5ff',
+                            transform: 'scale(1.1)'
                           }
                         }}
                       >
@@ -136,8 +165,8 @@ function LogEntryCard({ log, onMetadataClick, onAnalyzeLog, isSelected, onToggle
                     ) : (
                       <span style={{width: '1.75rem'}}></span>
                     )}
-                    <Text size="sm" fw={600}>{key}:</Text>
-                    <Text size="sm" c="dimmed" style={{ fontFamily: 'monospace' }}>
+                    <Text size="sm" fw={600} style={{ transition: 'color 0.2s ease' }}>{key}:</Text>
+                    <Text size="sm" c="dimmed" style={{ fontFamily: 'monospace', transition: 'color 0.2s ease' }}>
                       {JSON.stringify(value)}
                     </Text>
                   </Group>

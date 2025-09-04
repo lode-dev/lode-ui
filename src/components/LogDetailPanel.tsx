@@ -37,10 +37,12 @@ function LogDetailPanel({ log, onAnalyzeLog, onAddToContext }: LogDetailPanelPro
           backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          transition: 'all 0.3s ease',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
         }}
       >
-        <Text c="dimmed" size="lg" ta="center">
+        <Text c="dimmed" size="lg" ta="center" style={{ transition: 'color 0.2s ease' }}>
           Select a log to view details
         </Text>
       </Paper>
@@ -57,7 +59,12 @@ function LogDetailPanel({ log, onAnalyzeLog, onAddToContext }: LogDetailPanelPro
         backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
         overflow: 'auto',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        transition: 'all 0.3s ease',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        '&:hover': {
+          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.15)'
+        }
       }}
     >
       <ScrollArea style={{ flex: 1, minHeight: 0 }}>
@@ -70,11 +77,16 @@ function LogDetailPanel({ log, onAnalyzeLog, onAddToContext }: LogDetailPanelPro
               variant="light" 
               size="xl"
               radius="md"
-              style={{ fontWeight: 600, letterSpacing: '0.5px' }}
+              style={{ 
+                fontWeight: 600, 
+                letterSpacing: '0.5px',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)'
+              }}
             >
               {log.level.toUpperCase()}
             </Badge>
-            <Text c="dimmed" size="sm" fw={500}>
+            <Text c="dimmed" size="sm" fw={500} style={{ transition: 'color 0.2s ease' }}>
               {new Date(log.timestamp).toLocaleString()}
             </Text>
           </Group>
@@ -86,6 +98,13 @@ function LogDetailPanel({ log, onAnalyzeLog, onAddToContext }: LogDetailPanelPro
               leftSection={<IconPlus size="1rem" />}
               onClick={() => onAddToContext(log)}
               radius="md"
+              style={{
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)'
+                }
+              }}
             >
               Add to Context
             </Button>
@@ -96,6 +115,13 @@ function LogDetailPanel({ log, onAnalyzeLog, onAddToContext }: LogDetailPanelPro
               leftSection={<IconBrain size="1rem" />}
               onClick={() => onAnalyzeLog(log)}
               radius="md"
+              style={{
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  boxShadow: '0 4px 12px rgba(51, 154, 240, 0.3)'
+                }
+              }}
             >
               Analyze
             </Button>
@@ -104,8 +130,8 @@ function LogDetailPanel({ log, onAnalyzeLog, onAddToContext }: LogDetailPanelPro
 
         {/* Message */}
         <div>
-          <Text fw={600} size="sm" c="dimmed" mb="xs">MESSAGE</Text>
-          <Text size="lg" style={{ lineHeight: 1.6 }}>
+          <Text fw={600} size="sm" c="dimmed" mb="xs" style={{ transition: 'color 0.2s ease' }}>MESSAGE</Text>
+          <Text size="lg" style={{ lineHeight: 1.6, transition: 'color 0.2s ease' }}>
             {log.message}
           </Text>
         </div>
@@ -113,7 +139,7 @@ function LogDetailPanel({ log, onAnalyzeLog, onAddToContext }: LogDetailPanelPro
         {/* Metadata */}
         {Object.keys(log.metadata).length > 0 && (
           <div>
-            <Text fw={600} size="sm" c="dimmed" mb="md">METADATA</Text>
+            <Text fw={600} size="sm" c="dimmed" mb="md" style={{ transition: 'color 0.2s ease' }}>METADATA</Text>
             <Code 
               block 
               style={{
@@ -122,7 +148,12 @@ function LogDetailPanel({ log, onAnalyzeLog, onAddToContext }: LogDetailPanelPro
                 borderRadius: '12px',
                 padding: '16px',
                 fontSize: '14px',
-                lineHeight: 1.6
+                lineHeight: 1.6,
+                transition: 'all 0.3s ease',
+                boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
+                '&:hover': {
+                  boxShadow: 'inset 0 2px 6px rgba(0, 0, 0, 0.1)'
+                }
               }}
             >
               {JSON.stringify(log.metadata, null, 2)}

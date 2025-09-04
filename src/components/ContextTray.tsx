@@ -30,15 +30,20 @@ function ContextTray({ contextLogs, onRemoveLog, onClearContext }: ContextTrayPr
       style={{
         backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        transition: 'all 0.3s ease',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+        '&:hover': {
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+        }
       }}
     >
       {/* Header */}
       <Group justify="space-between" mb="md">
         <Group gap="xs">
-          <Text fw={600} size="sm">Context Tray</Text>
+          <Text fw={600} size="sm" style={{ transition: 'color 0.2s ease' }}>Context Tray</Text>
           {contextLogs.length > 0 && (
-            <Badge size="sm" color="blue" variant="light">
+            <Badge size="sm" color="blue" variant="light" style={{ transition: 'all 0.2s ease' }}>
               {contextLogs.length}
             </Badge>
           )}
@@ -50,6 +55,14 @@ function ContextTray({ contextLogs, onRemoveLog, onClearContext }: ContextTrayPr
             color="red"
             leftSection={<IconTrash size="0.7rem" />}
             onClick={onClearContext}
+            radius="md"
+            style={{
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                backgroundColor: 'rgba(250, 82, 82, 0.1)',
+                transform: 'scale(1.05)'
+              }
+            }}
           >
             Clear All
           </Button>
@@ -59,7 +72,7 @@ function ContextTray({ contextLogs, onRemoveLog, onClearContext }: ContextTrayPr
       {/* Content */}
       <ScrollArea style={{ flex: 1, minHeight: 0 }}>
         {contextLogs.length === 0 ? (
-          <Text c="dimmed" size="sm" ta="center" mt="xl">
+          <Text c="dimmed" size="sm" ta="center" mt="xl" style={{ transition: 'color 0.2s ease' }}>
             No logs in context
           </Text>
         ) : (
@@ -71,7 +84,12 @@ function ContextTray({ contextLogs, onRemoveLog, onClearContext }: ContextTrayPr
                 radius="md"
                 withBorder
                 style={{
-                  backgroundColor: colorScheme === 'dark' ? '#2b2c30' : '#f8f9fa'
+                  backgroundColor: colorScheme === 'dark' ? '#2b2c30' : '#f8f9fa',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateX(4px)',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                  }
                 }}
               >
                 <Group justify="space-between" align="flex-start" gap="xs">
@@ -80,6 +98,7 @@ function ContextTray({ contextLogs, onRemoveLog, onClearContext }: ContextTrayPr
                       color={getLogLevelColor(log.level)} 
                       variant="light" 
                       size="xs"
+                      style={{ transition: 'all 0.2s ease' }}
                     >
                       {log.level.toUpperCase()}
                     </Badge>
@@ -89,7 +108,8 @@ function ContextTray({ contextLogs, onRemoveLog, onClearContext }: ContextTrayPr
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
-                        flex: 1
+                        flex: 1,
+                        transition: 'color 0.2s ease'
                       }}
                     >
                       {log.message}
@@ -100,6 +120,13 @@ function ContextTray({ contextLogs, onRemoveLog, onClearContext }: ContextTrayPr
                     variant="subtle"
                     color="red"
                     onClick={() => onRemoveLog(index)}
+                    style={{
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: 'rgba(250, 82, 82, 0.1)',
+                        transform: 'scale(1.1)'
+                      }
+                    }}
                   >
                     <IconX size="0.6rem" />
                   </ActionIcon>

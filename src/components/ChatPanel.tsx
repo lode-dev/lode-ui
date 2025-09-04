@@ -177,7 +177,12 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
         height: '100%',
         backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        transition: 'all 0.3s ease',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        '&:hover': {
+          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.15)'
+        }
       }}
     >
       {/* Header */}
@@ -185,17 +190,18 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
         p="md"
         style={{
           borderBottom: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
-          backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#f8f9fa'
+          backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#f8f9fa',
+          transition: 'all 0.3s ease'
         }}
       >
         <Group gap="xs" justify="space-between">
           <Group gap="xs">
             <IconRobot size="1.2rem" color={colorScheme === 'dark' ? '#339af0' : '#1971c2'} />
-            <Text fw={600} size="sm">Chat with Lode</Text>
+            <Text fw={600} size="sm" style={{ transition: 'color 0.2s ease' }}>Chat with Lode</Text>
           </Group>
           <Group gap="xs">
             {contextLogs.length > 0 && (
-              <Badge size="sm" color="blue" variant="light">
+              <Badge size="sm" color="blue" variant="light" style={{ transition: 'all 0.2s ease' }}>
                 {contextLogs.length} log{contextLogs.length !== 1 ? 's' : ''} in context
               </Badge>
             )}
@@ -204,7 +210,9 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
                 width: '8px',
                 height: '8px',
                 borderRadius: '50%',
-                backgroundColor: isConnected ? '#51cf66' : '#fa5252'
+                backgroundColor: isConnected ? '#51cf66' : '#fa5252',
+                transition: 'background-color 0.3s ease',
+                boxShadow: isConnected ? '0 0 6px rgba(81, 207, 102, 0.5)' : 'none'
               }}
             />
           </Group>
@@ -216,53 +224,77 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
         flex={1}
         p="md"
         viewportRef={scrollAreaRef}
-        style={{ backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white' }}
+        style={{
+          backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
+          transition: 'background-color 0.3s ease'
+        }}
       >
-        <Stack gap="md">
-          {messages.length === 0 && (
-            <Text size="sm" c="dimmed" ta="center" mt="xl">
-              Ask me anything about your logs!
-            </Text>
-          )}
-          {messages.map((message) => (
-            <Group
-              key={message.id}
-              align="flex-start"
-              gap="xs"
-              style={{
-                flexDirection: message.sender === 'user' ? 'row-reverse' : 'row'
-              }}
-            >
-              <ActionIcon
-                size="sm"
-                variant="light"
-                color={message.sender === 'user' ? 'blue' : 'green'}
-                style={{ marginTop: '2px', flexShrink: 0 }}
-              >
-                {message.sender === 'user' ? <IconUser size="0.8rem" /> : <IconRobot size="0.8rem" />}
-              </ActionIcon>
-              <Paper
-                p="xs"
-                radius="md"
+        <Box
+          style={{
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <Stack gap="md">
+            {messages.length === 0 && (
+              <Text size="sm" c="dimmed" ta="center" mt="xl" style={{ transition: 'color 0.2s ease' }}>
+                Ask me anything about your logs!
+              </Text>
+            )}
+            {messages.map((message) => (
+              <Group
+                key={message.id}
+                align="flex-start"
+                gap="xs"
                 style={{
-                  backgroundColor: message.sender === 'user'
-                    ? (colorScheme === 'dark' ? '#339af0' : '#e7f5ff')
-                    : (colorScheme === 'dark' ? '#2b2c30' : '#f8f9fa'),
-                  color: message.sender === 'user' && colorScheme === 'light' ? '#1971c2' : undefined,
-                  maxWidth: '80%',
-                  wordBreak: 'break-word'
+                  flexDirection: message.sender === 'user' ? 'row-reverse' : 'row',
+                  animation: 'fadeInUp 0.3s ease'
                 }}
               >
-                <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                  {message.content}
-                  {message.sender === 'assistant' && isStreaming && message.content === currentResponseRef.current && (
-                    <Loader size="xs" ml="xs" style={{ display: 'inline-block' }} />
-                  )}
-                </Text>
-              </Paper>
-            </Group>
-          ))}
-        </Stack>
+                <ActionIcon
+                  size="sm"
+                  variant="light"
+                  color={message.sender === 'user' ? 'blue' : 'green'}
+                  style={{
+                    marginTop: '2px',
+                    flexShrink: 0,
+                    transition: 'all 0.2s ease',
+                    '&:hover': { transform: 'scale(1.1)' }
+                  }}
+                >
+                  {message.sender === 'user' ? <IconUser size="0.8rem" /> : <IconRobot size="0.8rem" />}
+                </ActionIcon>
+                <Paper
+                  p="xs"
+                  radius="md"
+                  style={{
+                    backgroundColor: message.sender === 'user'
+                      ? (colorScheme === 'dark' ? '#339af0' : '#e7f5ff')
+                      : (colorScheme === 'dark' ? '#2b2c30' : '#f8f9fa'),
+                    color: message.sender === 'user' && colorScheme === 'light' ? '#1971c2' : undefined,
+                    maxWidth: '80%',
+                    wordBreak: 'break-word',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
+                    '&:hover': {
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                    }
+                  }}
+                >
+                  <Text size="sm" style={{ whiteSpace: 'pre-wrap', transition: 'color 0.2s ease' }}>
+                    {message.content}
+                    {message.sender === 'assistant' && isStreaming && message.content === currentResponseRef.current && (
+                      <Loader size="xs" ml="xs" style={{ display: 'inline-block' }} />
+                    )}
+                  </Text>
+                </Paper>
+              </Group>
+            ))}
+          </Stack>
+        </Box>
       </ScrollArea>
 
       {/* Input */}
@@ -270,7 +302,8 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
         p="md"
         style={{
           borderTop: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
-          backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#f8f9fa'
+          backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#f8f9fa',
+          transition: 'all 0.3s ease'
         }}
       >
         <Group gap="xs">
@@ -283,6 +316,13 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
             disabled={!isConnected || isStreaming}
             size="sm"
             radius="md"
+            style={{
+              transition: 'all 0.2s ease',
+              '&:focus': {
+                boxShadow: '0 0 0 3px rgba(51, 154, 240, 0.1)',
+                transform: 'translateY(-1px)'
+              }
+            }}
           />
           <ActionIcon
             onClick={sendMessage}
@@ -291,6 +331,17 @@ function ChatPanel({ isOpen, contextLogs, activeFilters, onClearContext }: ChatP
             color="blue"
             size="lg"
             radius="md"
+            style={{
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow: '0 4px 12px rgba(51, 154, 240, 0.3)'
+              },
+              '&:disabled': {
+                opacity: 0.5,
+                cursor: 'not-allowed'
+              }
+            }}
           >
             <IconSend size="1rem" />
           </ActionIcon>

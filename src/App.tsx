@@ -176,17 +176,20 @@ function App() {
       padding={0}
       style={{
         backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#fafafa',
-        height: '100vh'
+        height: '100vh',
+        transition: 'background-color 0.3s ease'
       }}
     >
       <AppShell.Header style={{
         backgroundColor: colorScheme === 'dark'
-          ? 'rgba(26, 27, 30, 0.8)'
-          : 'rgba(255, 255, 255, 0.8)',
+          ? 'rgba(26, 27, 30, 0.95)'
+          : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
         borderBottom: colorScheme === 'dark'
           ? '1px solid #373a40'
-          : '1px solid #e9ecef'
+          : '1px solid #e9ecef',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease'
       }}>
         <Container size="xl" h="100%">
           <Group h="100%" justify="space-between" px="lg">
@@ -198,6 +201,13 @@ function App() {
                 radius="md"
                 onClick={() => toggleColorScheme()}
                 title="Toggle color scheme"
+                style={{
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                    transform: 'scale(1.05)'
+                  }
+                }}
               >
                 {colorScheme === 'dark' ? <IconSun size="1.2rem" /> : <IconMoon size="1.2rem" />}
               </ActionIcon>
@@ -208,8 +218,8 @@ function App() {
                 onChange={(event) => setIsLive(event.currentTarget.checked)}
                 label="Live Tail"
                 styles={{
-                  track: { cursor: 'pointer' },
-                  label: { cursor: 'pointer', fontWeight: 500 }
+                  track: { cursor: 'pointer', transition: 'all 0.2s ease' },
+                  label: { cursor: 'pointer', fontWeight: 500, transition: 'color 0.2s ease' }
                 }}
               />
             </Group>
@@ -233,11 +243,16 @@ function App() {
                   input: {
                     backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
                     border: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
                     color: colorScheme === 'dark' ? '#c1c2c5' : '#495057',
+                    transition: 'all 0.3s ease',
                     '&:focus': {
                       borderColor: '#339af0',
-                      boxShadow: '0 0 0 3px rgba(51, 154, 240, 0.1)'
+                      boxShadow: '0 0 0 4px rgba(51, 154, 240, 0.15)',
+                      transform: 'translateY(-1px)'
+                    },
+                    '&:hover': {
+                      borderColor: colorScheme === 'dark' ? '#5c5f66' : '#adb5bd'
                     }
                   }
                 }}
@@ -254,9 +269,9 @@ function App() {
             {/* Main Grid Layout */}
             <Grid flex={1} gutter="lg" style={{ minHeight: 0, height: '100%', overflow: 'hidden' }}>
               {/* Log Viewer - Left Column */}
-              <Grid.Col span={4} style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                <ScrollArea style={{ flex: 1, minHeight: 0, overflow: 'auto' }} type="auto">
-                  <Stack gap="md" p="xs">
+              <Grid.Col span={4} style={{ display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%' }}>
+                <ScrollArea style={{ height: '100%', minHeight: 0, overflow: 'auto' }} type="auto">
+                  <Stack gap="sm" p="xs">
                     {logs.map((log, index) => (
                       <LogEntryCard
                         key={index}
@@ -276,7 +291,9 @@ function App() {
                     borderTop: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
                     flexShrink: 0,
                     height: '80px',
-                    backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white'
+                    backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
+                    borderRadius: '0 0 12px 12px',
+                    transition: 'background-color 0.3s ease'
                   }}>
                     <Select
                       label="Per page"
@@ -287,7 +304,8 @@ function App() {
                       radius="md"
                       style={{ width: '120px' }}
                       styles={{
-                        label: { fontWeight: 500, fontSize: '0.875rem' }
+                        label: { fontWeight: 500, fontSize: '0.875rem' },
+                        input: { transition: 'all 0.2s ease' }
                       }}
                     />
                     <Pagination
@@ -298,9 +316,14 @@ function App() {
                       radius="md"
                       styles={{
                         control: {
+                          transition: 'all 0.2s ease',
                           '&[data-active]': {
                             backgroundColor: '#339af0',
-                            borderColor: '#339af0'
+                            borderColor: '#339af0',
+                            transform: 'scale(1.05)'
+                          },
+                          '&:hover': {
+                            backgroundColor: colorScheme === 'dark' ? '#373a40' : '#f1f3f5'
                           }
                         }
                       }}
@@ -360,9 +383,11 @@ function App() {
             zIndex: 1000,
             backgroundColor: colorScheme === 'dark' ? '#25262b' : 'white',
             border: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #e9ecef',
-            borderRadius: '12px',
+            borderRadius: '16px',
             padding: '12px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+            transition: 'all 0.3s ease',
+            animation: 'fadeInUp 0.3s ease'
           }}
         >
           <Group gap="xs">
@@ -372,6 +397,10 @@ function App() {
               variant="filled"
               color="red"
               onClick={() => setSelectedLogIndices(new Set())}
+              style={{
+                transition: 'all 0.2s ease',
+                '&:hover': { transform: 'scale(1.1)' }
+              }}
             >
               <IconTrash size="1.2rem" />
             </ActionIcon>
@@ -381,6 +410,10 @@ function App() {
               variant="filled"
               color="green"
               onClick={handleAddSelectedToContext}
+              style={{
+                transition: 'all 0.2s ease',
+                '&:hover': { transform: 'scale(1.1)' }
+              }}
             >
               <IconPlus size="1.2rem" />
             </ActionIcon>
